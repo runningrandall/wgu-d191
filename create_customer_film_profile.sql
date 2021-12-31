@@ -4,11 +4,11 @@
 
 CREATE TABLE public.customer_film_profile
 (
-    customer_film_profile_id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    customer_film_profile_id integer NOT NULL DEFAULT nextval('customer_film_profile_customer_film_profile_id_seq'::regclass),
     customer_id integer NOT NULL,
     all_rentals_description text COLLATE pg_catalog."default" NOT NULL,
     all_rentals_fulltext tsvector NOT NULL,
-    CONSTRAINT fk_customers FOREIGN KEY (customer_id)
+    CONSTRAINT customer_film_profile_customer_id FOREIGN KEY (customer_id)
         REFERENCES public.customer (customer_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
@@ -19,14 +19,19 @@ TABLESPACE pg_default;
 
 ALTER TABLE public.customer_film_profile
     OWNER to postgres;
+-- Index: all_rentals_fulltext_idx
 
-COMMENT ON TABLE public.customer_film_profile
-    IS 'Table of storing the aggregated film descriptions of a customer and their respective tsvector of the descriptions. From this we can match it against other movies.';
--- Index: fki_fk_customers
+-- DROP INDEX public.all_rentals_fulltext_idx;
 
--- DROP INDEX public.fki_fk_customers;
+CREATE INDEX all_rentals_fulltext_idx
+    ON public.customer_film_profile USING gist
+    (all_rentals_fulltext)
+    TABLESPACE pg_default;
+-- Index: fki_customer_film_profile_customer_id
 
-CREATE INDEX fki_fk_customers
+-- DROP INDEX public.fki_customer_film_profile_customer_id;
+
+CREATE INDEX fki_customer_film_profile_customer_id
     ON public.customer_film_profile USING btree
     (customer_id ASC NULLS LAST)
     TABLESPACE pg_default;
