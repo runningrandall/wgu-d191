@@ -185,7 +185,8 @@ EXPLAIN ANALYZE INSERT INTO public.rental(
 
 -- DROP PROCEDURE public.refresh_customer_profile();
 
-CREATE OR REPLACE PROCEDURE public.refresh_customer_profile()
+CREATE OR REPLACE PROCEDURE public.refresh_customer_profile(
+	)
 LANGUAGE 'plpgsql'
 AS $BODY$
 BEGIN
@@ -203,5 +204,6 @@ INSERT INTO public.customer_film_profile
             JOIN film f ON f.film_id = i.film_id
 GROUP BY c.customer_id;
 COMMIT;
+REFRESH MATERIALIZED VIEW next_recommended_film;
 END;
 $BODY$;
