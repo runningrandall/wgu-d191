@@ -103,6 +103,23 @@ ORDER BY similarity_score DESC LIMIT 5;
 
 -- End generate report of recommended movies
 
+-- REport of mv for next recommended movie:
+CREATE MATERIALIZED VIEW public.next_recommended_film
+TABLESPACE pg_default
+AS
+ SELECT cfp.customer_id,
+    ( SELECT film.film_id
+           FROM film
+          ORDER BY (ts_rank(film.fulltext, plainto_tsquery(cfp.all_rentals_description))) DESC
+         LIMIT 1) AS film_id
+   FROM customer_film_profile cfp
+WITH DATA;
+
+ALTER TABLE public.next_recommended_film
+    OWNER TO postgres;
+
+-- end sql for mv of next recommended movie
+
 -- Create trigger function:
 CREATE FUNCTION public.update_customer_profile()
     RETURNS trigger
